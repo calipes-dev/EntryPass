@@ -1,7 +1,7 @@
 /.env
 /vendor/
 /node_modules/
-/public/build/
+/dist/
 /public/hot
 /storage/logs/*.log
 /storage/framework/sessions/*
