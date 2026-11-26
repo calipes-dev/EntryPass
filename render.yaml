@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: entrypass
+    runtime: docker
+    plan: free
+    healthCheckPath: /up
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: TRUST_RENDER_PROXY
+        value: "true"
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_KEY
+        sync: false
+      - key: APP_URL
+        sync: false
+      - key: INITIAL_ORGANIZER_PASSWORD
+        sync: false
+      - key: SESSION_DRIVER
+        value: database
+      - key: SESSION_SECURE_COOKIE
+        value: "true"
+      - key: CACHE_STORE
+        value: database
+      - key: DB_URL
+        fromDatabase:
+          name: entrypass-db
+          property: connectionString
+      - key: MAIL_MAILER
+        value: log
+
+databases:
+  - name: entrypass-db
+    plan: free
+    ipAllowList: []
