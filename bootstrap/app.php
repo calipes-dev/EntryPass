@@ -12,5 +12,22 @@ return Application::configure(basePath: dirname(__DIR__))
         }
         $middleware->redirectGuestsTo(fn (Request $request) => route('staff.login'));
     })
-    ->withExceptions(function () {})
+    ->withExceptions(function (Illuminate\Foundation\Configuration\Exceptions $exceptions) {
+        if (getenv('VERCEL') !== '1') {
+            return;
+        }
+
+        $exceptions->report(function (Throwable $error) {
+            $summary = 'EntryPass runtime error: '.$error::class;
+
+            if ($error instanceof Illuminate\Database\QueryException) {
+                $summary .= ' SQLSTATE='.$error->getCode();
+                if (str_contains($error->getMessage(), 'relation "sessions" does not exist')) {
+                    $summary .= ' (missing sessions table)';
+                }
+            }
+
+            error_log($summary);
+        });
+    })
     ->create();
