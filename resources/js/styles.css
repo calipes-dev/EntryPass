@@ -175,3 +175,14 @@ a:focus-visible, button:focus-visible { outline: 3px solid #37805f; outline-offs
 }
 
 .room-map-image { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
+@media (max-width: 400px) {
+  .staff-layout { --staff-drawer-width: clamp(0px, calc(100vw - 8.5rem), 10.5rem); }
+  .staff-topbar { padding-inline: .75rem; }
+  .staff-side { padding: .75rem .5rem; gap: .75rem; }
+  .staff-side .brand { padding-inline: .4rem; font-size: .95rem; }
+  .staff-side .brand img { width: 24px; height: 24px; }
+  .staff-side nav a { gap: .45rem; padding-inline: .45rem; font-size: .8rem; }
+  .staff-side nav svg { flex: none; width: 14px; height: 14px; }
+  .staff-footer { font-size: .65rem; }
+}
