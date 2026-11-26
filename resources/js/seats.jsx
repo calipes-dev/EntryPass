@@ -1,3 +1,4 @@
+import occupiedSeat from '../images/occupied-seat.png?inline'
 import { useEffect, useRef, useState } from 'react'
 import { Field, Notice, request, useForm } from './shared'
 
@@ -79,8 +80,11 @@ export function Seats({ event, onTicket, waitlisted }) {
     <div className="map-tools"><small>Empty chair · Available　 <b className="text-success">Green · Selected</b>　 Seated figure · Occupied</small>
       <div className="btn-group"><button className="btn btn-light" aria-label="Zoom out" disabled={zoom===1} onClick={()=>setZoom(zoom-.5)}>−</button><button className="btn btn-light" onClick={()=>{setZoom(1);viewport.current.scrollTo(0,0)}}>Reset view</button><button className="btn btn-light" aria-label="Zoom in" disabled={zoom===3} onClick={()=>setZoom(zoom+.5)}>+</button></div></div>
     <div className="map-window" ref={viewport}><div className="room-map" style={{width:zoom*100+'%'}}>
+      <img className="room-map-image" alt="" width="1672" height="941"
+        src="/room-map-1672.jpg" srcSet="/room-map-960.jpg 960w, /room-map-1672.jpg 1672w"
+        sizes={zoom === 1 ? '(max-width: 600px) 100vw, 1280px' : '1672px'} decoding="async" />
       {chairs.map(({id,x,y}) => <button key={id} className={'room-chair '+(selected===id?'selected':'')} style={{left:x/1672*100+'%',top:y/941*100+'%'}} title={id} aria-label={id+' '+(occupied.includes(id)?'occupied':'available')} disabled={ended || offline || waitlisted || occupied.includes(id)} onClick={()=>select(id)}>
-        {occupied.includes(id) && <img src="/attendee.png" alt=""/>}<span>{id}</span>
+        {occupied.includes(id) && <img src={occupiedSeat} alt="" width="96" height="105"/>}<span>{id}</span>
       </button>)}
     </div></div>
     {selected && <Reservation event={event} seat={selected} unavailable={ended || offline || occupied.includes(selected)} cancel={()=>select(null)} confirm={confirm}/>}
