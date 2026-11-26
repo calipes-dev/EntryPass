@@ -143,12 +143,12 @@ a:focus-visible, button:focus-visible { outline: 3px solid #37805f; outline-offs
 .staff-footer { margin-top: auto; text-align: center; color: #b8dbca; font-size: .75rem; white-space: normal; }
 .staff-topbar { position: relative; z-index: 4; background: #fff; border-bottom: 1px solid #dce6df; padding: .5rem clamp(.75rem, 3vw, 3rem); }
 .staff-topbar nav { display: flex; justify-content: flex-end; }
-.staff-menu-toggle { display: grid; place-items: center; width: 44px; height: 44px; }
+.staff-menu-toggle { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; }
 .staff-account-menu { position: absolute; top: 100%; right: clamp(.75rem, 3vw, 3rem); width: min(18rem, calc(100% - 1.5rem)); box-shadow: 0 8px 24px #12372a24; }
 .staff-sidebar-toggle { display: none; }
 
 @media (max-width: 600px) {
-  .staff-layout { display: block; }
+  .staff-layout { display: block; --staff-drawer-width: min(15rem, calc(100vw - 7rem)); }
   .staff-topbar {
     position: sticky;
     top: 0;
@@ -157,11 +157,15 @@ a:focus-visible, button:focus-visible { outline: 3px solid #37805f; outline-offs
     align-items: center;
     justify-content: space-between;
   }
-  .staff-sidebar-toggle { display: grid; place-items: center; width: 44px; height: 44px; }
+  .staff-sidebar-toggle { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; }
+  .staff-sidebar-toggle[aria-expanded="true"] { transform: translateX(var(--staff-drawer-width)); }
+  @media (prefers-reduced-motion: no-preference) {
+    .staff-sidebar-toggle { transition: transform .18s ease; }
+  }
   .staff-side {
     position: fixed;
-    inset: 3.875rem auto 0 0;
-    width: min(15rem, 80vw);
+    inset: 0 auto 0 0;
+    width: var(--staff-drawer-width);
     height: auto;
     z-index: 3;
     padding: 1rem;
