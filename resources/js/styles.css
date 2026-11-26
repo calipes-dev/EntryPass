@@ -64,9 +64,9 @@ a:focus-visible, button:focus-visible { outline: 3px solid #37805f; outline-offs
 .login-card .btn { width:100%; }
 .staff-layout { display:grid;grid-template-columns:clamp(175px,21vw,248px) minmax(0,1fr);min-height:100dvh; }
 .staff-side { position:sticky;top:0;height:100dvh;background:#123e33;color:#fff;padding:2rem 1rem;display:flex;flex-direction:column;gap:1rem;overflow:auto; }
-.staff-side .brand { color:white;text-decoration:none;padding-inline:.65rem; margin-bottom:.75rem; }
+.staff-side .brand { color:white;text-decoration:none;padding-inline:.65rem; }
 .staff-role { margin:0 .65rem;color:#b8dbca;font-size:.85rem; }
-.staff-side nav { display:grid;gap:.3rem; }
+.staff-side nav { display:grid; gap:.3rem; margin-top:1.5rem; }
 .staff-side nav a,.staff-exit { border-radius:.6rem;padding:.65rem .8rem;text-decoration:none;color:#e7f4ee; }
 .staff-side nav a:is(:hover,.active) { background:#285a49;color:white; }
 .staff-side nav a.active { box-shadow:inset 3px 0 #a2e6bf;font-weight:650; }
