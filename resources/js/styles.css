@@ -99,3 +99,25 @@ a:focus-visible, button:focus-visible { outline: 3px solid #37805f; outline-offs
 .staff-layout .table-responsive::-webkit-scrollbar { height:9px; }
 .staff-layout .table-responsive::-webkit-scrollbar-track { background:#e8f0eb; border-radius:1rem; }
 .staff-layout .table-responsive::-webkit-scrollbar-thumb { background:#53816e; border-radius:1rem; }
+
+.compact-seat-picker { display: none; }
+.panel, .seat-dialog { overflow-wrap: anywhere; min-width: 0; }
+.seat-dialog { max-height: 90dvh; overflow-y: auto; padding: clamp(1rem, 4vw, 1.6rem); }
+.map-window, .table-responsive { max-width: 100%; overscroll-behavior-x: contain; }
+#qr-camera-preview video { max-width: 100%; height: auto; }
+
+@media (max-width: 48rem), (pointer: coarse) {
+  .compact-seat-picker { display: block; margin-block: .75rem; }
+  .btn, .form-select, .form-control, .staff-side nav a, .staff-exit, .site-header a { min-height: 44px; }
+  .site-header .icon-link { align-items: center; }
+}
+
+@media (max-width: 36rem) {
+  .staff-layout main { padding-inline: .75rem; }
+  .staff-side nav { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr)); }
+  .account-list li { flex-wrap: wrap; }
+  .site-header { padding-block: .4rem; }
+  .ticket-scroll { padding-inline: 0; }
+  .map-tools .btn-group { width: 100%; }
+  .map-tools .btn { flex: 1 1 auto; }
+}

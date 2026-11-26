@@ -15,7 +15,7 @@ function Reservation({ event, seat, unavailable, cancel, confirm }) {
   const form = useForm('/events/' + event.id + '/register', confirm)
   useEffect(() => { dialog.current.showModal() }, [])
   return <dialog ref={dialog} className="seat-dialog" aria-labelledby="reserve-heading" onCancel={e => { e.preventDefault(); if (!form.busy) cancel() }}>
-    <form onSubmit={form.submit}>
+    <form noValidate onSubmit={form.submit}>
       <h2 id="reserve-heading">Reserve seat {seat}</h2>
       <p>{event.title} · Admission <strong>FREE</strong></p>
       <input type="hidden" name="seat" value={seat}/>
@@ -23,7 +23,7 @@ function Reservation({ event, seat, unavailable, cancel, confirm }) {
       <Field required type="email" name="email" label="Email address" autoComplete="email" errors={form.errors}/>
       <Field required type="tel" name="mobile" label="Contact number" placeholder="09171234567" pattern="09[0-9]{9}" autoComplete="tel-national" errors={form.errors}/>
       {unavailable && <Notice>This seat is no longer available.</Notice>}
-      {form.error && <Notice>{Object.values(form.errors || {}).flat().join(' ') || form.error.message}</Notice>}
+      {form.error && (!form.errors || form.errors.seat || form.errors.registration || form.errors.waitlist) && <Notice>{form.errors?.seat?.[0] || form.errors?.registration?.[0] || form.errors?.waitlist?.[0] || form.error.message}</Notice>}
       <button className="btn btn-primary" disabled={form.busy || unavailable}>Confirm reservation</button>
       <button type="button" className="btn btn-light ms-2" disabled={form.busy} onClick={cancel}>Cancel</button>
     </form>
@@ -61,8 +61,16 @@ export function Seats({ event, onTicket, waitlisted }) {
     <h2 className="h4">Choose your seat</h2>
     <p>30 seats · {30 - occupied.length} available · {occupied.length} occupied · Selected {selected || '—'} · Admission <strong>FREE</strong></p>
     <progress className="seat-progress" value={occupied.length} max="30" aria-label="Reservation progress"/>
-    {occupied.length === 30 && <Notice color="warning">Fully Booked</Notice>}
+    {occupied.length === 30 && <Notice color="warning">Full</Notice>}
     {offline && <Notice color="warning">Reconnecting to seat availability…</Notice>}
+    <div className="compact-seat-picker">
+      <label className="form-label" htmlFor="available-seat">Choose an available seat</label>
+      <select id="available-seat" className="form-select" value="" disabled={ended || offline || waitlisted || occupied.length === chairs.length}
+        onChange={event => select(event.target.value)}>
+        <option value="" disabled>Select a seat</option>
+        {chairs.filter(chair => !occupied.includes(chair.id)).map(chair => <option key={chair.id} value={chair.id}>{chair.id}</option>)}
+      </select>
+    </div>
     <div className="map-tools"><small>Empty chair · Available　 <b className="text-success">Green · Selected</b>　 Seated figure · Occupied</small>
       <div className="btn-group"><button className="btn btn-light" aria-label="Zoom out" disabled={zoom===1} onClick={()=>setZoom(zoom-.5)}>−</button><button className="btn btn-light" onClick={()=>{setZoom(1);viewport.current.scrollTo(0,0)}}>Reset view</button><button className="btn btn-light" aria-label="Zoom in" disabled={zoom===3} onClick={()=>setZoom(zoom+.5)}>+</button></div></div>
     <div className="map-window" ref={viewport}><div className="room-map" style={{width:zoom*100+'%'}}>

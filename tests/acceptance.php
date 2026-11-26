@@ -15,6 +15,7 @@ $app->detectEnvironment(fn () => 'testing');
 config(['database.default'=>'acceptance','database.connections.acceptance'=>['driver'=>'sqlite','database'=>':memory:'],
     'session.driver'=>'array','cache.default'=>'array','mail.default'=>'array','mail.resend_key'=>null,'mail.mailers.array'=>['transport'=>'array'],
     'app.demo_staff_password'=>'Local-Test-Only-2026']);
+Illuminate\Support\Carbon::setTestNow(today()->setTime(14, 0));
 foreach (glob(__DIR__.'/../database/migrations/2026_01*.php') as $file) (require $file)->up();
 DB::statement('ALTER TABLE registrations ADD COLUMN seat varchar(2)');
 DB::statement("CREATE UNIQUE INDEX active_seat ON registrations(event_id,seat) WHERE status IN ('confirmed','checked_in')");
@@ -45,7 +46,8 @@ foreach (['ticket_code'=>'EP-1','email'=>'other@example.test'] as $key=>$bad) {
     check("Wrong $key hides details",$status===404 && $body['message']==='Ticket not found' && !isset($body['full_name']));
 }
 check('Duplicate email blocked',httpCall("$public/register",$person)[0]===422);
-check('Both malformed fields rejected',isset(httpCall("$public/register",array_replace($person,['email'=>'bad','mobile'=>'0912345678']))[1]['errors']['email'],httpCall("$public/register",array_replace($person,['email'=>'bad','mobile'=>'0912345678']))[1]['errors']['mobile']));
+[$status, $invalid] = httpCall("$public/register", array_replace($person, ['email'=>'bad','mobile'=>'0912345678']));
+check('Both malformed fields rejected', $status === 422 && isset($invalid['errors']['email'], $invalid['errors']['mobile']));
 $full=httpCall("/data/events/$work")[1];
 check('Workshop full',count($full['occupied_seats'])===30 && $full['registrations_count']===30);
 $guest=httpCall('/staff',null,true)[2];
@@ -55,7 +57,7 @@ $scan=fn($code)=>httpCall("$staff/check-in",['ticket_code'=>$code])[1];
 check('Check in with name',$scan($ticket['ticket_code'])['full_name']===$person['full_name']);
 $again=$scan($ticket['ticket_code']);
 check('Repeat scan returns first timestamp',$again['status']==='already_checked_in' && $again['checked_in_at']===Event::find($meet)->registrations()->first()->checked_in_at->toJSON());
-foreach (['EP-1',substr_replace($ticket['ticket_code'],'Z',5,1),Event::find($work)->registrations()->first()->ticket_code] as $c) check('Invalid scan',$scan($c)['status']==='invalid');
+foreach (['EP-1',substr_replace($ticket['ticket_code'],$ticket['ticket_code'][5]==='Z'?'Y':'Z',5,1),Event::find($work)->registrations()->first()->ticket_code] as $c) check('Invalid scan',$scan($c)['status']==='invalid');
 $list=httpCall("$staff/attendees")[1];
 check('Attendee totals',$list['event']['registrations_count']===1 && $list['event']['checked_in_count']===1);
 $row=$list['attendees'][0]['id'];
@@ -67,15 +69,18 @@ $id=$draft['id']; $edit="/data/staff/events/$id"; $reg="/data/events/$id/registe
 check('Draft invisible',$status===201 && httpCall("/data/events/$id")[0]===404 && !in_array($id,array_column(httpCall('/data/events')[1],'id')));
 $event['status']='published';
 check('Published visible',httpCall($edit,$event)[0]===200 && in_array($id,array_column(httpCall('/data/events')[1],'id')));
-check('Bad time blocked',httpCall($edit,array_replace($event,['ends_at'=>$event['starts_at']]))[0]===422);
+check('Bad time blocked',httpCall($edit,array_replace($event,['ends_at'=>today()->subDay()->format('Y-m-d').'T23:59']))[0]===422);
 $a=httpCall($reg,$person)[1];
 $b=httpCall($reg,array_replace($person,['email'=>'waiting@example.test','join_waitlist'=>1]))[1];
 $scan2=fn($t)=>httpCall("$edit/check-in",['ticket_code'=>$t['ticket_code']])[1]['status'];
-check('Waitlist position',$b['status']==='waitlisted' && $b['waitlist_position']===1);
+$next = httpCall($reg, array_replace($person, ['email'=>'next@example.test','join_waitlist'=>1]))[1];
+check('Waitlist position',$b['status']==='waitlisted' && $b['waitlist_position']===1 && $next['waitlist_position']===2);
 check('Waitlist scan',$scan2($b)==='waitlisted');
+// Start the cancellation scenario in a fresh rate-limit window.
+Illuminate\Support\Carbon::setTestNow(now()->addMinute()->addSecond());
 httpCall('/data/tickets/cancel',['ticket_code'=>$a['ticket_code'],'email'=>$a['email']]);
 check('Cancellation releases spot and invalidates admission',httpCall("/data/events/$id")[1]['registrations_count']===0 && $scan2($a)==='cancelled');
-check('FIFO promotion and scan',httpCall("$edit/promote",[])[0]===204 && $scan2($b)==='checked_in');
+check('FIFO promotion and scan',httpCall("$edit/promote",[])[0]===204 && $scan2($b)==='checked_in' && $scan2($next)==='waitlisted');
 check('Capacity below occupancy blocked',httpCall("/data/staff/events/$work",array_replace($event,['capacity'=>29]))[0]===422);
 $dashboard=collect(httpCall('/data/staff/events')[1]['events'])->firstWhere('id',$meet);
 check('Dashboard totals match',$dashboard['registrations_count']===$list['event']['registrations_count'] && $dashboard['checked_in_count']===$list['event']['checked_in_count']);
