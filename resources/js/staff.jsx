@@ -70,22 +70,28 @@ export function EditEvent() {
   const form = useForm(id ? '/staff/events/' + id : '/staff/events', () => navigate('/staff'))
   if (id && !event) return <LoadState error={error} />
 
-  return <Page title={id ? 'Edit event' : 'Create event'} subtitle="Enter dates and times in Cebu time." narrow>
-    <form className="panel" noValidate onSubmit={form.submit}>
-      <FormError form={form} />
+  return <Page title={id ? 'Edit event' : 'Create event'} subtitle="Enter dates and times in Cebu time.">
+    <form className="panel event-editor" noValidate onSubmit={form.submit}>
+      <div className="event-editor-wide"><FormError form={form} /></div>
       <Field name="title" label="Event title" defaultValue={event?.title} errors={form.errors} />
-      <Field name="description" label="Description" type="textarea" defaultValue={event?.description} errors={form.errors} />
       <Field name="venue" label="Venue" defaultValue={event?.venue} errors={form.errors} />
+      <div className="event-editor-wide">
+        <Field name="description" label="Description" type="textarea" defaultValue={event?.description} errors={form.errors} />
+      </div>
       <Field name="starts_at" label="Starts at (PHT)" type="datetime-local" defaultValue={dateInput(event?.starts_at)} errors={form.errors} />
       <Field name="ends_at" label="Ends at (PHT)" type="datetime-local" defaultValue={dateInput(event?.ends_at)} errors={form.errors} />
       <Field name="capacity" label="Capacity" type="number" min="1" defaultValue={event?.capacity} errors={form.errors} />
-      <label className="form-label" htmlFor="status">Status</label>
-      <select className="form-select mb-3" id="status" name="status" defaultValue={event?.status || 'draft'}>
-        <option value="draft">Draft</option><option value="published">Published</option><option value="closed">Closed</option>
-      </select>
-      {form.errors?.status && <Notice>{form.errors.status[0]}</Notice>}
-      <button className="btn btn-primary me-3" disabled={form.busy}>Save event</button>
-      <Link to="/staff">Cancel</Link>
+      <div>
+        <label className="form-label" htmlFor="status">Status</label>
+        <select className="form-select mb-3" id="status" name="status" defaultValue={event?.status || 'draft'}>
+          <option value="draft">Draft</option><option value="published">Published</option><option value="closed">Closed</option>
+        </select>
+        {form.errors?.status && <Notice>{form.errors.status[0]}</Notice>}
+      </div>
+      <div className="event-editor-wide">
+        <button className="btn btn-primary me-3" disabled={form.busy}>Save event</button>
+        <Link to="/staff">Cancel</Link>
+      </div>
     </form>
   </Page>
 }
