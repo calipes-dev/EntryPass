@@ -40,6 +40,11 @@ export function Seats({ event, onTicket, waitlisted }) {
   useEffect(() => {
     let active = true, timer
     async function update() {
+      if (document.hidden) {
+        timer = setTimeout(update, 3000)
+        return
+      }
+
       const version = revision.current
       try {
         const fresh = await request('/events/' + event.id)
@@ -47,7 +52,7 @@ export function Seats({ event, onTicket, waitlisted }) {
       } catch { if (active) setOffline(true) }
       if (active) timer = setTimeout(update, 3000)
     }
-    update()
+    timer = setTimeout(update, 3000)
     return () => { active = false; clearTimeout(timer) }
   }, [event.id])
   function confirm(ticket) {
