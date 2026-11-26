@@ -77,7 +77,7 @@ function StaffSidebar({ brandMark, open, close }) {
         <NavLink to="/staff/audit" onClick={close}><Icon name="audit"/><span>Audit log</span></NavLink>
       </>}
     </nav>
-    <footer className="staff-footer">@EntryPass 2026</footer>
+    <footer className="staff-footer"><span className="staff-footer-brand">@EntryPass </span>2026</footer>
   </aside>
 }
 function Layout({ brandMark }) {
