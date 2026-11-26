@@ -13,7 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectGuestsTo(fn (Request $request) => route('staff.login'));
     })
     ->withExceptions(function (Illuminate\Foundation\Configuration\Exceptions $exceptions) {
-        if (getenv('VERCEL') !== '1') {
+        if (!defined('ENTRYPASS_VERCEL_ENTRY')) {
             return;
         }
 
@@ -28,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
             }
 
             error_log($summary);
+            return false;
         });
     })
     ->create();
