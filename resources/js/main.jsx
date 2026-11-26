@@ -18,8 +18,9 @@ function App({ brandMark }) {
   return <BrowserRouter><Layout brandMark={brandMark}/></BrowserRouter>
 }
 
-function StaffSidebar({ brandMark }) {
-  const organizer = document.getElementById('root').dataset.role === 'organizer'
+function StaffNavbar() {
+  const { name, role } = document.getElementById('root').dataset
+  const [menuOpen, setMenuOpen] = useState(false)
   const [confirmExit, setConfirmExit] = useState(false)
   const [signOutError, setSignOutError] = useState('')
   const [signingOut, setSigningOut] = useState(false)
@@ -36,9 +37,30 @@ function StaffSidebar({ brandMark }) {
     }
   }
 
+  return <header className="staff-topbar">
+    <nav aria-label="Staff account">
+      <button type="button" className="btn btn-outline-primary staff-menu-toggle" aria-label="Staff account menu"
+        aria-expanded={menuOpen} aria-controls="staff-account-menu" onClick={() => setMenuOpen(!menuOpen)}>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+          <path d="M3 6h18M3 12h18M3 18h18" />
+        </svg>
+      </button>
+      <div id="staff-account-menu" className="staff-account-menu panel" hidden={!menuOpen}>
+        <strong>{name}</strong>
+        <p className="text-secondary mb-3">{role === 'organizer' ? 'Organizer' : 'Door staff'}</p>
+        <button type="button" className="btn btn-outline-primary icon-link" disabled={signingOut} onClick={() => setConfirmExit(true)}>
+          <Icon name="logout" />Sign out
+        </button>
+      </div>
+    </nav>
+    {confirmExit && <ActionDialog title="Sign out of EntryPass?" close={() => setConfirmExit(false)} confirm={signOut} label="Sign out" busy={signingOut}>You will need to sign in again to access staff pages.</ActionDialog>}
+    {signOutError && <Notice>{signOutError}</Notice>}
+  </header>
+}
+function StaffSidebar({ brandMark }) {
+  const organizer = document.getElementById('root').dataset.role === 'organizer'
   return <aside className="staff-side">
     <Link className="brand" to="/staff"><img src={brandMark} alt="" width="32" height="32"/><span>EntryPass</span></Link>
-    <p className="staff-role">{organizer ? 'Organizer' : 'Door staff'}</p>
     <nav aria-label="Staff navigation">
       <NavLink end to="/staff"><Icon name={organizer ? 'dashboard' : 'ticket'}/><span>{organizer ? 'Dashboard' : 'Door check-in'}</span></NavLink>
       {organizer && <>
@@ -47,16 +69,14 @@ function StaffSidebar({ brandMark }) {
         <NavLink to="/staff/audit"><Icon name="audit"/><span>Audit log</span></NavLink>
       </>}
     </nav>
-    <button className="staff-exit" disabled={signingOut} onClick={() => setConfirmExit(true)}><Icon name="logout"/><span>Sign out</span></button>
-    {confirmExit && <ActionDialog title="Sign out of EntryPass?" close={() => setConfirmExit(false)} confirm={signOut} label="Sign out" busy={signingOut}>You will need to sign in again to access staff pages.</ActionDialog>}
-    {signOutError && <Notice>{signOutError}</Notice>}
+    <footer className="staff-footer">@EntryPass 2026</footer>
   </aside>
 }
 function Layout({ brandMark }) {
   const staff = useMatch("/staff/*")
   if (useMatch("/entrypass-staff")) return <main className="login-layout"><StaffLogin/></main>
   return <div className={staff ? "staff-layout" : undefined}>
-    {staff ? <StaffSidebar brandMark={brandMark}/> : <header className="site-header">
+    {staff ? <><StaffSidebar brandMark={brandMark}/><StaffNavbar/></> : <header className="site-header">
       <nav className="container d-flex flex-wrap align-items-center justify-content-between gap-2" aria-label="Main navigation">
         <Link className="brand" to="/"><img className="brand-icon" src={brandMark} width="32" height="32" alt="" /> EntryPass</Link>
         <div className="d-flex flex-wrap gap-3 align-items-center">

@@ -9,6 +9,6 @@
     @vite('resources/js/main.jsx')
 </head>
 <body>
-    <div id="root" data-role="{{ auth()->user()?->role }}" data-brand-mark="{{ '/entrypass-mark.svg' }}">Loading EntryPass…</div>
+    <div id="root" data-name="{{ auth()->user()?->name }}" data-role="{{ auth()->user()?->role }}" data-brand-mark="{{ '/entrypass-mark.svg' }}">Loading EntryPass…</div>
 </body>
 </html>

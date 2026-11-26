@@ -137,3 +137,13 @@ a:focus-visible, button:focus-visible { outline: 3px solid #37805f; outline-offs
   }
   .event-editor-wide { grid-column: 1 / -1; }
 }
+
+.room-chair span { white-space: nowrap; overflow-wrap: normal; }
+.staff-layout { grid-template-rows: auto 1fr; }
+.staff-side { grid-row: 1 / -1; }
+.staff-footer { margin-top: auto; text-align: center; color: #b8dbca; font-size: .75rem; white-space: normal; }
+.staff-topbar { position: relative; z-index: 4; background: #fff; border-bottom: 1px solid #dce6df; padding: .5rem clamp(.75rem, 3vw, 3rem); }
+.staff-topbar nav { display: flex; justify-content: flex-end; }
+.staff-menu-toggle { display: grid; place-items: center; width: 44px; height: 44px; }
+.staff-account-menu { position: absolute; top: 100%; right: clamp(.75rem, 3vw, 3rem); width: min(18rem, calc(100% - 1.5rem)); box-shadow: 0 8px 24px #12372a24; }
+@media (max-width: 600px) { .staff-footer { grid-column: 1 / -1; } }
