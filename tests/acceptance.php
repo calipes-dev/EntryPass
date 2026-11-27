@@ -13,7 +13,7 @@ $kernel = $app->make(Kernel::class);
 $kernel->bootstrap();
 $app->detectEnvironment(fn () => 'testing');
 config(['database.default'=>'acceptance','database.connections.acceptance'=>['driver'=>'sqlite','database'=>':memory:'],
-    'session.driver'=>'array','cache.default'=>'array','mail.default'=>'array','mail.resend_key'=>null,'mail.mailers.array'=>['transport'=>'array'],
+    'session.driver'=>'array','cache.default'=>'array','mail.default'=>'array','mail.mailers.array'=>['transport'=>'array'],
     'app.demo_staff_password'=>'Local-Test-Only-2026']);
 Illuminate\Support\Carbon::setTestNow(today()->setTime(14, 0));
 foreach (glob(__DIR__.'/../database/migrations/2026_01*.php') as $file) (require $file)->up();

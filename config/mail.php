@@ -1,7 +1,6 @@
 <?php
 
 return [
-    'resend_key' => env('RESEND_API_KEY'),
     'default' => env('MAIL_MAILER', 'log'),
     'mailers' => [
         'log' => ['transport' => 'log'],

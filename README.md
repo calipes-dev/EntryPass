@@ -72,7 +72,7 @@ Timestamps are stored as PostgreSQL timezone-aware timestamps. The database sess
 
 With `MAIL_MAILER=log`, Laravel writes messages to `storage/logs/laravel.log` locally. To test real sandbox delivery, set `MAIL_MAILER=smtp` and enter the SMTP settings for a Mailtrap Email Sandbox inbox in `.env`. Register, cancel a confirmed booking to free a spot, and promote a waitlisted booking. The sandbox should receive the registration and promotion messages. Each email includes a link that fills in the ticket code. The attendee enters their registered email to open the ticket.
 
-For the hosted demo, set `RESEND_API_KEY` and `MAIL_FROM_ADDRESS` to use Resend over HTTPS. Use your own permitted recipient when testing with the Resend onboarding sender. Mail delivery happens after the database commit. If the provider fails, the booking is still saved and the failure is logged.
+For Gmail SMTP on Vercel, set the Production environment variables: `MAIL_MAILER=smtp`, `MAIL_SCHEME=smtp`, `MAIL_HOST=smtp.gmail.com`, and `MAIL_PORT=587`. Set `MAIL_USERNAME` and `MAIL_FROM_ADDRESS` to the sending Gmail address, `MAIL_PASSWORD` to its Google App Password, and `APP_URL` to the live EntryPass URL. Redeploy after saving the variables. Bookings are saved before sending email. If SMTP fails, search runtime logs for `EntryPass SMTP delivery failed`.
 
 ## Deploy to Render over HTTPS
 
@@ -81,9 +81,9 @@ The repository includes `Dockerfile` and `render.yaml` for a Render Blueprint. R
 1. Put the repository on GitHub and connect it to a new Blueprint in Render. The Blueprint requests a free web service and free PostgreSQL database. Free Render PostgreSQL expires after 30 days.
 2. Set `APP_KEY` to the output of `php artisan key:generate --show`, `APP_URL` to the assigned **HTTPS** service URL, and `INITIAL_ORGANIZER_PASSWORD` to a strong password you choose. Update `APP_URL` and redeploy if the assigned URL becomes available after the first deployment.
 3. The container applies migrations on startup. Sign in as `organizer` with the initial password, remove `INITIAL_ORGANIZER_PASSWORD` from Render settings, and create the demo events. Add a door-staff account from Staff accounts.
-4. Open the HTTPS URL on a phone and test the camera with a ticket displayed on a second device. Render's free web services block common SMTP ports. Use the HTTPS email option if testing hosted email.
+4. Open the HTTPS URL on a phone and test the camera with a ticket displayed on a second device. Render's free web services block common SMTP ports.
 
-Provider references: [Render Blueprint](https://render.com/docs/blueprint-spec), [Free Render services](https://render.com/docs/free), [Render SMTP limits](https://render.com/articles/can-i-send-email-over-smtp-from-render), [Resend email API](https://resend.com/docs/api-reference/emails/send-email).
+Provider references: [Render Blueprint](https://render.com/docs/blueprint-spec), [Free Render services](https://render.com/docs/free), [Render SMTP limits](https://render.com/articles/can-i-send-email-over-smtp-from-render).
 
 ## Acceptance checks
 

@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\Registration;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Throwable;
 
@@ -22,22 +21,17 @@ class TicketMail
 
         $subject = ($promoted ? 'Waitlist promotion' : 'EntryPass registration').' | '.$event->title;
         try {
-            if (config('mail.resend_key')) {
-                Http::withToken(config('mail.resend_key'))->timeout(8)
-                    ->post('https://api.resend.com/emails', [
-                        'from' => config('mail.from.address'),
-                        'to' => [$registration->email],
-                        'subject' => $subject,
-                        'text' => $body,
-                    ])->throw();
-                return;
-            }
-
             Mail::raw($body, function ($message) use ($registration, $subject) {
                 $message->to($registration->email)->subject($subject);
             });
         } catch (Throwable $error) {
             // The registration is already committed. Report delivery failure without inviting a duplicate booking.
+            if (config('mail.default') === 'smtp') {
+                // Symfony exposes the SMTP reply code without requiring us to log its response body.
+                error_log('EntryPass SMTP delivery failed: '.$error::class.' (code '.$error->getCode().')');
+                return;
+            }
+
             report($error);
         }
     }
