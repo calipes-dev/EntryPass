@@ -184,27 +184,29 @@ a:focus-visible, button:focus-visible { outline: 3px solid #37805f; outline-offs
   .staff-footer { font-size: .65rem; }
 }
 
-.staff-sidebar-heading { display: flex; align-items: center; }
-.staff-sidebar-close, .attendee-scroll-hint { display: none; }
+.staff-sidebar-backdrop { display: none; }
 .attendee-table th, .attendee-table td { overflow-wrap: normal; }
 .attendee-table th, .attendee-table td:nth-child(n+3) { white-space: nowrap; }
 .attendee-table td:first-child { min-width: 8rem; }
-
-@media (max-width: 900px) {
-  .attendee-scroll-hint { display: block; }
-}
+.audit-table .table { min-width: 34rem; }
+.audit-table th, .audit-table td { white-space: nowrap; overflow-wrap: normal; }
 
 @media (max-width: 600px) {
-  .staff-sidebar-close {
-    display: grid;
-    place-items: center;
-    flex: 0 0 44px;
-    height: 44px;
-    padding: 0;
+  .staff-sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 4;
     border: 0;
-    border-radius: .5rem;
+    padding: 0;
     background: transparent;
-    color: inherit;
   }
-  .staff-sidebar-close:is(:hover, :focus-visible) { background: #285a49; }
+  .staff-event-actions.d-flex { flex-wrap: nowrap !important; gap: .375rem !important; }
+  .staff-event-actions .btn {
+    display: inline-flex;
+    align-items: center;
+    padding-inline: clamp(.375rem, 2vw, .75rem);
+    font-size: clamp(.8rem, 3vw, 1rem);
+    white-space: nowrap;
+  }
 }

@@ -32,7 +32,7 @@ export function StaffHome() {
           <p className="event-meta mb-1"><EventTime event={event} /></p>
           <p className="text-capitalize">{event.status} · {event.registrations_count} / {event.capacity} registered</p>
           {organizer && <EventCounts event={event} />}
-          <div className="d-flex flex-wrap gap-2">
+          <div className="d-flex flex-wrap gap-2 staff-event-actions">
             {organizer && <>
               <Link className="btn btn-outline-primary" to={'/staff/events/' + event.id + '/edit'}>Edit</Link>
               <Link className="btn btn-outline-primary" to={'/staff/events/' + event.id + '/attendees'}>Attendees</Link>
@@ -210,7 +210,6 @@ export function Attendees() {
       </div>
       {problem && <Notice>{problem}</Notice>}
       <Field name="search" label="Search by name or ticket code" type="search" value={search} onChange={event => setSearch(event.target.value)} />
-      <p className="attendee-scroll-hint small text-secondary mb-2">Scroll sideways to see all attendee details.</p>
       <div className="table-responsive attendee-table" role="region" aria-label="Attendee details" tabIndex={0}>
         <table className="table align-middle mb-0">
           <thead><tr>{['Name', 'Email', 'Mobile', 'Ticket code', 'Registered at (PHT)', 'Status', 'Actions'].map(label => <th key={label} scope="col">{label}</th>)}</tr></thead>

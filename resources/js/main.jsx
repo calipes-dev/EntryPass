@@ -68,14 +68,7 @@ function StaffNavbar({ sidebarOpen, toggleSidebar }) {
 function StaffSidebar({ brandMark, open, close }) {
   const organizer = document.getElementById('root').dataset.role === 'organizer'
   return <aside id="staff-sidebar" className="staff-side" data-open={open}>
-    <div className="staff-sidebar-heading">
-      <Link className="brand" to="/staff" onClick={close}><img src={brandMark} alt="" width="32" height="32"/><span>EntryPass</span></Link>
-      <button type="button" className="staff-sidebar-close" aria-label="Close staff sidebar" onClick={close}>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-          <path d="m6 6 12 12M18 6 6 18" />
-        </svg>
-      </button>
-    </div>
+    <Link className="brand" to="/staff" onClick={close}><img src={brandMark} alt="" width="32" height="32"/><span>EntryPass</span></Link>
     <nav aria-label="Staff navigation">
       <NavLink end to="/staff" onClick={close}><Icon name={organizer ? 'dashboard' : 'ticket'}/><span>{organizer ? 'Dashboard' : 'Door check-in'}</span></NavLink>
       {organizer && <>
@@ -92,7 +85,7 @@ function Layout({ brandMark }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   if (useMatch("/entrypass-staff")) return <main className="login-layout"><StaffLogin/></main>
   return <div className={staff ? "staff-layout" : undefined}>
-    {staff ? <><StaffSidebar brandMark={brandMark} open={sidebarOpen} close={() => setSidebarOpen(false)}/><StaffNavbar sidebarOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(open => !open)}/></> : <header className="site-header">
+    {staff ? <><StaffSidebar brandMark={brandMark} open={sidebarOpen} close={() => setSidebarOpen(false)}/>{sidebarOpen && <button type="button" className="staff-sidebar-backdrop" aria-label="Close staff sidebar" onClick={() => setSidebarOpen(false)} />}<StaffNavbar sidebarOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(open => !open)}/></> : <header className="site-header">
       <nav className="container d-flex flex-wrap align-items-center justify-content-between gap-2" aria-label="Main navigation">
         <Link className="brand" to="/"><img className="brand-icon" src={brandMark} width="32" height="32" alt="" /> EntryPass</Link>
         <div className="d-flex flex-wrap gap-3 align-items-center">

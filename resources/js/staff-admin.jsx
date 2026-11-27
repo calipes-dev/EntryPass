@@ -7,7 +7,7 @@ export function Audit() {
   if (!data) return <LoadState error={error} />
   return <Page title="Audit log" subtitle="Latest 200 actions. All times are in Cebu time.">
     <Link to="/staff">Back to staff events</Link>
-    <div className="panel mt-3 table-responsive">
+    <div className="panel mt-3 table-responsive audit-table" role="region" aria-label="Audit log entries" tabIndex={0}>
       <table className="table">
         <thead><tr><th>When</th><th>Who</th><th>Action</th><th>Record</th></tr></thead>
         <tbody>{data.map(entry => <tr key={entry.id}>
