@@ -20,13 +20,24 @@ class TicketMail
         $body = "Hello {$registration->full_name},\n\n{$status}\n\n{$event->title}\n{$event->venue}\n{$start} to {$end} PHT\nTicket code: {$registration->ticket_code}\n\nOpen your ticket with the email you registered with:\n{$link}";
 
         $subject = ($promoted ? 'Waitlist promotion' : 'EntryPass registration').' | '.$event->title;
+        $mailer = config('mail.default');
+        if (app()->isProduction() && $mailer !== 'smtp') {
+            error_log('EntryPass ticket email skipped: Production MAIL_MAILER is not smtp.');
+            return;
+        }
+
         try {
-            Mail::raw($body, function ($message) use ($registration, $subject) {
+            $sent = Mail::raw($body, function ($message) use ($registration, $subject) {
                 $message->to($registration->email)->subject($subject);
             });
+            if ($mailer === 'smtp') {
+                error_log($sent === null
+                    ? 'EntryPass ticket email skipped before SMTP submission.'
+                    : 'EntryPass ticket email accepted by SMTP.');
+            }
         } catch (Throwable $error) {
             // The registration is already committed. Report delivery failure without inviting a duplicate booking.
-            if (config('mail.default') === 'smtp') {
+            if ($mailer === 'smtp') {
                 // Symfony exposes the SMTP reply code without requiring us to log its response body.
                 error_log('EntryPass SMTP delivery failed: '.$error::class.' (code '.$error->getCode().')');
                 return;
