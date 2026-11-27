@@ -23,7 +23,7 @@ function Reservation({ event, seat, unavailable, cancel, confirm }) {
       <Field required name="full_name" label="Full name" maxLength={150} autoComplete="name" errors={form.errors}/>
       <Field required type="email" name="email" label="Email address" autoComplete="email" errors={form.errors}/>
       <Field required type="tel" name="mobile" label="Contact number" placeholder="09171234567" pattern="09[0-9]{9}" autoComplete="tel-national" errors={form.errors}/>
-      {unavailable && <Notice>This seat is no longer available.</Notice>}
+      {unavailable && !form.busy && !form.errors?.seat && <Notice>This seat is no longer available.</Notice>}
       {form.error && (!form.errors || form.errors.seat || form.errors.registration || form.errors.waitlist) && <Notice>{form.errors?.seat?.[0] || form.errors?.registration?.[0] || form.errors?.waitlist?.[0] || form.error.message}</Notice>}
       <button className="btn btn-primary" disabled={form.busy || unavailable}>Confirm reservation</button>
       <button type="button" className="btn btn-light ms-2" disabled={form.busy} onClick={cancel}>Cancel</button>

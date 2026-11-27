@@ -87,7 +87,7 @@ function Layout({ brandMark }) {
   return <div className={staff ? "staff-layout" : undefined}>
     {staff ? <><StaffSidebar brandMark={brandMark} open={sidebarOpen} close={() => setSidebarOpen(false)}/>{sidebarOpen && <button type="button" className="staff-sidebar-backdrop" aria-label="Close staff sidebar" onClick={() => setSidebarOpen(false)} />}<StaffNavbar sidebarOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(open => !open)}/></> : <header className="site-header">
       <nav className="container d-flex flex-wrap align-items-center justify-content-between gap-2" aria-label="Main navigation">
-        <Link className="brand" to="/"><img className="brand-icon" src={brandMark} width="32" height="32" alt="" /> EntryPass</Link>
+        <Link className="brand" to="/" aria-label="EntryPass home"><img className="brand-icon" src={brandMark} width="32" height="32" alt="" /><span className="public-brand-name">EntryPass</span></Link>
         <div className="d-flex flex-wrap gap-3 align-items-center">
           <Link className="icon-link" to="/"><Icon name="calendar" />Events</Link><Link className="icon-link" to="/tickets"><Icon name="ticket" />Find ticket</Link>
         </div>

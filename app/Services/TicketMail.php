@@ -17,7 +17,8 @@ class TicketMail
             : ($promoted ? 'Your waitlist spot was promoted. Your ticket is confirmed.' : 'Your ticket is confirmed.');
         $start = $event->starts_at->format('M j, Y g:i A');
         $end = $event->ends_at->format('M j, Y g:i A');
-        $body = "Hello {$registration->full_name},\n\n{$status}\n\n{$event->title}\n{$event->venue}\n{$start} to {$end} PHT\nTicket code: {$registration->ticket_code}\n\nOpen your ticket with the email you registered with:\n{$link}";
+        $seat = $registration->seat ? "Seat: {$registration->seat}\n" : '';
+        $body = "Hello {$registration->full_name},\n\n{$status}\n\n{$event->title}\n{$event->venue}\n{$start} to {$end} PHT\nAdmission: Free\n{$seat}Ticket code: {$registration->ticket_code}\n\nOpen your ticket with the email you registered with:\n{$link}";
 
         $subject = ($promoted ? 'Waitlist promotion' : 'EntryPass registration').' | '.$event->title;
         $mailer = config('mail.default');
@@ -27,9 +28,13 @@ class TicketMail
         }
 
         try {
-            $sent = Mail::raw($body, function ($message) use ($registration, $subject) {
-                $message->to($registration->email)->subject($subject);
-            });
+            $qr = in_array($registration->status, ['confirmed', 'checked_in'], true)
+                ? TicketQr::png($registration->ticket_code) : null;
+            $sent = Mail::send(['html' => 'emails.ticket', 'raw' => $body],
+                compact('registration', 'status', 'event', 'start', 'end', 'link', 'qr'),
+                function ($message) use ($registration, $subject) {
+                    $message->to($registration->email)->subject($subject);
+                });
             if ($mailer === 'smtp') {
                 error_log($sent === null
                     ? 'EntryPass ticket email skipped before SMTP submission.'

@@ -81,6 +81,19 @@ Illuminate\Support\Carbon::setTestNow(now()->addMinute()->addSecond());
 httpCall('/data/tickets/cancel',['ticket_code'=>$a['ticket_code'],'email'=>$a['email']]);
 check('Cancellation releases spot and invalidates admission',httpCall("/data/events/$id")[1]['registrations_count']===0 && $scan2($a)==='cancelled');
 check('FIFO promotion and scan',httpCall("$edit/promote",[])[0]===204 && $scan2($b)==='checked_in' && $scan2($next)==='waitlisted');
+$messages = Illuminate\Support\Facades\Mail::mailer('array')->getSymfonyTransport()->messages();
+foreach ([[$ticket, 'EntryPass registration'], [$b, 'Waitlist promotion']] as [$emailedTicket, $subject]) {
+    $email = $messages->map(fn ($message) => $message->getOriginalMessage())
+        ->first(fn ($message) => str_starts_with($message->getSubject(), $subject.' | ')
+            && $message->getTo()[0]->getAddress() === $emailedTicket['email']);
+    $qr = $email?->getAttachments()[0] ?? null;
+    check("$subject email includes an embedded PNG and the ticket details",
+        $qr && $qr->getDisposition() === 'inline' && $qr->getMediaSubtype() === 'png'
+        && getimagesizefromstring($qr->getBody())[2] === IMAGETYPE_PNG
+        && str_contains($email->getHtmlBody(), 'cid:')
+        && str_contains($email->getHtmlBody(), $emailedTicket['ticket_code'])
+        && str_contains($email->getTextBody(), '/tickets?code='.$emailedTicket['ticket_code']));
+}
 check('Capacity below occupancy blocked',httpCall("/data/staff/events/$work",array_replace($event,['capacity'=>29]))[0]===422);
 $dashboard=collect(httpCall('/data/staff/events')[1]['events'])->firstWhere('id',$meet);
 check('Dashboard totals match',$dashboard['registrations_count']===$list['event']['registrations_count'] && $dashboard['checked_in_count']===$list['event']['checked_in_count']);

@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, useParams, useSearchParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Seats } from './seats'
 import QRCode from 'qrcode'
+import { downloadTicket } from './ticket-image'
 import { Icon } from './icons'
 import { EventTime, Field, FormError, LoadState, Notice, Page, request, useData, useForm } from './shared'
 
@@ -41,9 +42,10 @@ export function EventList() {
 export function EventDetails() {
   const { id } = useParams()
   const { data: event, error } = useData('/events/' + id)
-  const [ticket, setTicket] = useState(null)
+  const navigate = useNavigate()
+  const openTicket = ticket => navigate('/tickets', { state: { ticket } })
   const [showForm, setShowForm] = useState(false)
-  const form = useForm('/events/' + id + '/register', setTicket)
+  const form = useForm('/events/' + id + '/register', openTicket)
 
   if (!event) return <LoadState error={error} />
   const ended = Date.parse(event.ends_at) <= Date.now()
@@ -58,8 +60,7 @@ export function EventDetails() {
       {(Number(event.capacity) !== 30 || waitlist) && <button className="btn btn-primary" disabled={ended || waitlist} onClick={() => setShowForm(true)} aria-expanded={showForm}>Register</button>}
       {waitlist && !ended && <button className="btn btn-outline-primary ms-2" onClick={() => setShowForm(true)} aria-expanded={showForm}>Join waitlist</button>}
     </div>
-    {Number(event.capacity) === 30 && <Seats waitlisted={event.waitlisted_count > 0} event={event} onTicket={setTicket}/>}
-    {ticket && <TicketDialog ticket={ticket} close={() => setTicket(null)} />}
+    {Number(event.capacity) === 30 && <Seats waitlisted={event.waitlisted_count > 0} event={event} onTicket={openTicket}/>}
     {showForm && <form className="panel mt-3" noValidate onSubmit={form.submit}>
       <h2 className="h5 mb-3">{waitlist ? 'Join the waitlist' : 'Reserve your spot'}</h2>
       <input type="hidden" name="join_waitlist" value={waitlist ? '1' : '0'} />
@@ -72,33 +73,15 @@ export function EventDetails() {
   </Page>
 }
 
-function TicketDialog({ ticket, close }) {
-  const ref = useRef(null)
-  useEffect(() => { ref.current.showModal() }, [])
-  return <dialog ref={ref} className="seat-dialog ticket-dialog" aria-label="Your ticket" onClose={close}>
-    <div className="d-flex align-items-center justify-content-between mb-3">
-      <strong>{ticket.status === 'waitlisted' ? 'Added to waitlist' : 'Reservation confirmed'}</strong>
-      <button autoFocus type="button" className="btn btn-outline-secondary" onClick={() => ref.current.close()}>Close</button>
-    </div>
-    <div className="ticket-scroll" tabIndex="0" aria-label="Ticket details"><Ticket ticket={ticket}/></div>
-  </dialog>
-}
-
 function Ticket({ ticket }) {
-  const ticketElement = useRef(null)
-  function download() {
-    const documentCopy = document.implementation.createHTMLDocument('EntryPass ticket')
-    documentCopy.documentElement.lang = 'en'
-    const style = documentCopy.createElement('style')
-    style.textContent = 'body{font:18px system-ui;color:#12372a;text-align:center;margin:3rem auto;max-width:600px;padding:1rem}p{overflow-wrap:anywhere}img{max-width:100%;height:auto}'
-    documentCopy.head.append(style)
-    documentCopy.body.append(ticketElement.current.cloneNode(true))
-    const url = URL.createObjectURL(new Blob(['<!doctype html>', documentCopy.documentElement.outerHTML], {type:'text/html;charset=utf-8'}))
-    const link = document.createElement('a')
-    link.href = url
-    link.download = ticket.ticket_code + '.html'
-    link.click()
-    setTimeout(() => URL.revokeObjectURL(url), 60000)
+  const [downloadError, setDownloadError] = useState(false)
+  async function download() {
+    setDownloadError(false)
+    try {
+      await downloadTicket(ticket)
+    } catch {
+      setDownloadError(true)
+    }
   }
   const valid = ticket.status === 'confirmed' || ticket.status === 'checked_in'
   const [qr, setQr] = useState(null)
@@ -114,7 +97,7 @@ function Ticket({ ticket }) {
   }, [ticket.ticket_code, valid])
 
   return <Page title="Your ticket" narrow>
-    <div className="panel ticket mt-3" ref={ticketElement}>
+    <div className="panel ticket mt-3">
       <h2 className="h4">{ticket.event.title}</h2>
       <p className="event-meta mb-1"><EventTime event={ticket.event} /></p>
       <p className="event-meta">{ticket.event.venue}</p>
@@ -129,7 +112,8 @@ function Ticket({ ticket }) {
       {ticket.seat && <p>Seat <strong>{ticket.seat}</strong> · FREE<br/>{ticket.email} · {ticket.mobile}</p>}
       <code className="ticket-code">{ticket.ticket_code}</code>
     </div>
-    {valid && qr && <button className="btn btn-primary mt-3" onClick={download}>Download free ticket</button>}
+    {valid && qr && <button className="btn btn-primary mt-3" onClick={download}>Download ticket (PNG)</button>}
+    {downloadError && <Notice>Could not download the ticket. Please try again.</Notice>}
     <p className="text-secondary mt-3">Keep a copy of this code. You can use it with your email to recover your ticket.</p>
     <Link to="/">Browse events</Link>
   </Page>
@@ -137,9 +121,14 @@ function Ticket({ ticket }) {
 
 export function TicketLookup() {
   const [params] = useSearchParams()
-  const [ticket, setTicket] = useState(null)
+  const { state } = useLocation()
+  const navigate = useNavigate()
+  const [ticket, setTicket] = useState(state?.ticket ?? null)
+  useEffect(() => { if (state?.ticket) window.scrollTo(0, 0) }, [state])
   const cancelDialog = useRef(null)
-  const [identity, setIdentity] = useState(null)
+  const [identity, setIdentity] = useState(() => state?.ticket ? {
+    ticket_code: state.ticket.ticket_code, email: state.ticket.email,
+  } : null)
   const [cancelError, setCancelError] = useState('')
   const [busy, setBusy] = useState(false)
   const form = useForm('/tickets/lookup', (result, element) => {
@@ -153,6 +142,7 @@ export function TicketLookup() {
     setCancelError('')
     try {
       setTicket(await request('/tickets/cancel', identity))
+      if (state?.ticket) navigate('/tickets', { replace: true })
     } catch (error) {
       setCancelError(error.message)
     } finally {
@@ -174,7 +164,7 @@ export function TicketLookup() {
     <div className="narrow mt-3">
       {cancelError && <Notice>{cancelError}</Notice>}
       {['confirmed', 'waitlisted'].includes(ticket.status) && <button className="btn btn-outline-danger me-2" onClick={() => cancelDialog.current.showModal()} disabled={busy}>Cancel registration</button>}
-      <button className="btn btn-outline-secondary" onClick={() => { setTicket(null); setCancelError('') }} disabled={busy}>Find another ticket</button>
+      <button className="btn btn-outline-secondary" onClick={() => { setTicket(null); setCancelError(''); if (state?.ticket) navigate('/tickets', { replace: true }) }} disabled={busy}>Find another ticket</button>
     </div>
   </>
   return <Page title="Find your ticket" subtitle="Enter your ticket code and registration email." narrow>
