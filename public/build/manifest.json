@@ -1,6 +1,6 @@
 {
   "node_modules/html5-qrcode/esm/index.js": {
-    "file": "assets/esm-DDBKR8r-.js",
+    "file": "assets/esm-CMQ_c9vH.js",
     "name": "esm",
     "src": "node_modules/html5-qrcode/esm/index.js",
     "isDynamicEntry": true,
@@ -9,7 +9,7 @@
     ]
   },
   "resources/js/main.jsx": {
-    "file": "assets/main-WRPnHvzD.js",
+    "file": "assets/main-uFLm0k8K.js",
     "name": "main",
     "src": "resources/js/main.jsx",
     "isEntry": true,
@@ -17,7 +17,7 @@
       "node_modules/html5-qrcode/esm/index.js"
     ],
     "css": [
-      "assets/main-DbdpYCRf.css"
+      "assets/main-Cj0N3lxX.css"
     ]
   }
 }

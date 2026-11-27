@@ -210,7 +210,8 @@ export function Attendees() {
       </div>
       {problem && <Notice>{problem}</Notice>}
       <Field name="search" label="Search by name or ticket code" type="search" value={search} onChange={event => setSearch(event.target.value)} />
-      <div className="table-responsive">
+      <p className="attendee-scroll-hint small text-secondary mb-2">Scroll sideways to see all attendee details.</p>
+      <div className="table-responsive attendee-table" role="region" aria-label="Attendee details" tabIndex={0}>
         <table className="table align-middle mb-0">
           <thead><tr>{['Name', 'Email', 'Mobile', 'Ticket code', 'Registered at (PHT)', 'Status', 'Actions'].map(label => <th key={label} scope="col">{label}</th>)}</tr></thead>
           <tbody>{matching.map(person => <tr key={person.id}>

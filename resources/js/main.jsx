@@ -68,7 +68,14 @@ function StaffNavbar({ sidebarOpen, toggleSidebar }) {
 function StaffSidebar({ brandMark, open, close }) {
   const organizer = document.getElementById('root').dataset.role === 'organizer'
   return <aside id="staff-sidebar" className="staff-side" data-open={open}>
-    <Link className="brand" to="/staff" onClick={close}><img src={brandMark} alt="" width="32" height="32"/><span>EntryPass</span></Link>
+    <div className="staff-sidebar-heading">
+      <Link className="brand" to="/staff" onClick={close}><img src={brandMark} alt="" width="32" height="32"/><span>EntryPass</span></Link>
+      <button type="button" className="staff-sidebar-close" aria-label="Close staff sidebar" onClick={close}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+          <path d="m6 6 12 12M18 6 6 18" />
+        </svg>
+      </button>
+    </div>
     <nav aria-label="Staff navigation">
       <NavLink end to="/staff" onClick={close}><Icon name={organizer ? 'dashboard' : 'ticket'}/><span>{organizer ? 'Dashboard' : 'Door check-in'}</span></NavLink>
       {organizer && <>

@@ -158,10 +158,7 @@ a:focus-visible, button:focus-visible { outline: 3px solid #37805f; outline-offs
     justify-content: space-between;
   }
   .staff-sidebar-toggle { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; }
-  .staff-sidebar-toggle[aria-expanded="true"] { transform: translateX(var(--staff-drawer-width)); }
-  @media (prefers-reduced-motion: no-preference) {
-    .staff-sidebar-toggle { transition: transform .18s ease; }
-  }
+  .staff-sidebar-toggle[aria-expanded="true"] { visibility: hidden; }
   .staff-side {
     position: fixed;
     inset: 0 auto 0 0;
@@ -185,4 +182,29 @@ a:focus-visible, button:focus-visible { outline: 3px solid #37805f; outline-offs
   .staff-side nav a { gap: .45rem; padding-inline: .45rem; font-size: .8rem; }
   .staff-side nav svg { flex: none; width: 14px; height: 14px; }
   .staff-footer { font-size: .65rem; }
+}
+
+.staff-sidebar-heading { display: flex; align-items: center; }
+.staff-sidebar-close, .attendee-scroll-hint { display: none; }
+.attendee-table th, .attendee-table td { overflow-wrap: normal; }
+.attendee-table th, .attendee-table td:nth-child(n+3) { white-space: nowrap; }
+.attendee-table td:first-child { min-width: 8rem; }
+
+@media (max-width: 900px) {
+  .attendee-scroll-hint { display: block; }
+}
+
+@media (max-width: 600px) {
+  .staff-sidebar-close {
+    display: grid;
+    place-items: center;
+    flex: 0 0 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: .5rem;
+    background: transparent;
+    color: inherit;
+  }
+  .staff-sidebar-close:is(:hover, :focus-visible) { background: #285a49; }
 }
