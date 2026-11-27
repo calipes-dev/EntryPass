@@ -4,7 +4,7 @@ import { Seats } from './seats'
 import QRCode from 'qrcode'
 import { downloadTicket } from './ticket-image'
 import { Icon } from './icons'
-import { EventTime, Field, FormError, LoadState, Notice, Page, request, useData, useForm } from './shared'
+import { EventTime, Field, FormError, LoadState, Notice, Page, RegistrationSubmit, request, useData, useForm } from './shared'
 
 function Availability({ event }) {
   if (Date.parse(event.ends_at) <= Date.now()) return <span className="availability full">Ended</span>
@@ -68,7 +68,7 @@ export function EventDetails() {
       <Field name="full_name" label="Full name" autoComplete="name" errors={form.errors} />
       <Field name="email" label="Email address" type="email" autoComplete="email" errors={form.errors} />
       <Field name="mobile" label="Mobile number" type="tel" autoComplete="tel-national" placeholder="09171234567" errors={form.errors} />
-      <button className="btn btn-primary" disabled={form.busy || ended}>{waitlist ? 'Join waitlist' : 'Get my ticket'}</button>
+      <RegistrationSubmit busy={form.busy} disabled={ended}>{waitlist ? 'Join waitlist' : 'Get my ticket'}</RegistrationSubmit>
     </form>}
   </Page>
 }

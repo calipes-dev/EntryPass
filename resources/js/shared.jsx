@@ -103,6 +103,20 @@ export function useForm(path, onSuccess) {
   return { busy, error, errors: error?.fields, submit }
 }
 
+export function RegistrationSubmit({ busy, disabled, children }) {
+  return <>
+    <button type="submit" className="btn btn-primary" disabled={busy || disabled}>
+      {busy ? <>
+        <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />
+        Confirming…
+      </> : children}
+    </button>
+    <span className="visually-hidden" role="status">
+      {busy ? 'Confirming your registration and processing the confirmation email.' : ''}
+    </span>
+  </>
+}
+
 export function FormError({ form }) {
   if (!form.error) return null
   if (form.errors?.registration) return <Notice>{form.errors.registration[0]}</Notice>
